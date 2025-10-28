@@ -121,7 +121,8 @@ const Contact = () => {
                       <p className="text-muted-foreground">
                         Yogiraj Oil Mill
                         <br />
-                        Gujarat, India
+                        Juna jasapar,jasdan
+                        <br/>rajkot,Gujarat, India
                       </p>
                     </div>
                   </div>
@@ -135,6 +136,7 @@ const Contact = () => {
                         Phone
                       </h3>
                       <p className="text-muted-foreground">+91 8780621820</p>
+                      <p className="text-muted-foreground">+91 7670029700</p>
                     </div>
                   </div>
 

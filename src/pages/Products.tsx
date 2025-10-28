@@ -171,7 +171,7 @@ const Products = () => {
               const message = encodeURIComponent(
                 "Hello! I'm interested in bulk orders. Please provide details and pricing."
               );
-              window.open(`https://wa.me/918780621820?text=${message}`, "_blank");
+              window.open(`https://wa.me/917670029700?text=${message}`, "_blank");
             }}
           >
             <MessageCircle className="mr-2" />
