@@ -3,10 +3,5 @@
     "api/contact.js": {
       "maxDuration": 30
     }
-  },
-  "env": {
-    "EMAIL_USER": "@email_user",
-    "EMAIL_PASS": "@email_pass",
-    "EMAIL_TO": "@email_to"
   }
 }
