@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { MapPin, Phone, Mail, Instagram, Facebook } from "lucide-react";
+import { submitContactForm } from "@/lib/api";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -28,23 +29,13 @@ const Contact = () => {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8081/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        toast.success("Thank you! We'll get back to you soon.");
-        setFormData({ name: "", email: "", message: "" });
-      } else {
-        toast.error(data.error || "Something went wrong!");
-      }
+      await submitContactForm(formData);
+      toast.success("Thank you! We'll get back to you soon.");
+      setFormData({ name: "", email: "", message: "" });
     } catch (error) {
       console.error(error);
-      toast.error("Failed to send message. Please try again.");
+      const errorMessage = error instanceof Error ? error.message : "Failed to send message. Please try again.";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
