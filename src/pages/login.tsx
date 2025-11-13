@@ -1,30 +1,47 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Lock, Mail } from "lucide-react";
+import { useAuth } from "@/context/AuthContext"; // Import the custom hook
+import axios from "axios";
 
-const Login = ({ setIsAuthenticated }) => {
+// Use the API URL from your environment variables
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081/api";
+
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(null); // For error messages
+  const { login } = useAuth(); // Get the login function from context
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null); // Clear previous errors
 
-    // ✅ Demo Auth Logic
-    if (email === "admin@yogiraj.com" && password === "123456") {
-      localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("user", JSON.stringify({ email }));
-      setIsAuthenticated(true);
-      navigate("/"); // redirect to homepage after login
-    } else {
-      alert("Invalid email or password!");
+    try {
+      // ✅ Real Auth Logic
+      const res = await axios.post(`${API_URL}/auth/login`, {
+        email,
+        password,
+      });
+
+      // Pass the token to the context to log the user in
+      login(res.data.token);
+
+      navigate("/"); // Redirect to homepage
+    } catch (err) {
+      // Handle login errors
+      const message = err.response?.data?.message || "Login failed. Please try again.";
+      setError(message);
+      alert(message); // Show alert
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#FFF8E7] via-[#FDF6E3] to-[#FDEFC6]">
       <div className="bg-white/90 backdrop-blur-xl p-10 rounded-3xl shadow-2xl w-full max-w-md border border-[#EBD9A9]">
-        {/* Title */}
+        
+        {/* Title and Subtitle */}
         <h2 className="text-3xl font-bold text-center text-[#B8860B] mb-2">
           Welcome Back 👋
         </h2>
@@ -60,6 +77,11 @@ const Login = ({ setIsAuthenticated }) => {
             />
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <p className="text-center text-red-600 text-sm">{error}</p>
+          )}
+
           {/* Sign In Button */}
           <button
             type="submit"
@@ -69,6 +91,8 @@ const Login = ({ setIsAuthenticated }) => {
           </button>
         </form>
 
+        {/* --- This is the part you asked for --- */}
+        
         {/* Divider */}
         <div className="flex items-center my-6">
           <div className="flex-grow h-px bg-gray-300" />
@@ -78,16 +102,12 @@ const Login = ({ setIsAuthenticated }) => {
 
         {/* Sign Up Button */}
         <button
-          onClick={() => navigate("/src/pages/signup.tsx")}
+          onClick={() => navigate("/signup")}
           className="w-full py-2.5 border-2 border-[#D4AF37] text-[#B8860B] rounded-lg font-semibold text-lg hover:bg-[#D4AF37] hover:text-white transition-all duration-300"
         >
           Create New Account
         </button>
 
-        {/* Note */}
-        <p className="text-center text-gray-500 text-sm mt-6">
-          Tip: Use <strong>admin@yogiraj.com</strong> / <strong>123456</strong> to log in
-        </p>
       </div>
     </div>
   );

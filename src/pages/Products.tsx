@@ -1,92 +1,131 @@
 import { Button } from "@/components/ui/button";
-import { MessageCircle } from "lucide-react";
-import bottleImage from "@/assets/oil-bottle.jpg";
-import canImage from "@/assets/oil-can.jpg";
-import teenImage from "@/assets/oil-teen.jpg";
-import seedsImage from "@/assets/groundnut-seeds.jpg";
+import { MessageCircle, Edit, Trash2, PlusCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ProductFormModal } from "@/components/ProductFormModal"; // Adjust path if needed
+import { useAuth } from "@/context/AuthContext"; // Adjust path if needed
 
 const Products = () => {
-  const products = [
-    {
-      id: 1,
-      name: "Premium Oil Bottle",
-      category: "Groundnut Oil",
-      size: "1 Liter",
-      price: 200,
-      image: bottleImage,
-      description: "Perfect for everyday cooking needs",
-    },
-    {
-      id: 2,
-      name: "Oil Can",
-      category: "Groundnut Oil",
-      size: "5 Liters",
-      price: 800,
-      image: canImage,
-      description: "Ideal for medium-sized families",
-    },
-    {
-      id: 3,
-      name: "Traditional Teen",
-      category: "Groundnut Oil",
-      size: "15 Liters",
-      price: 2800,
-      image: teenImage,
-      description: "Traditional container for bulk requirements",
-    },
-    {
-      id: 4,
-      name: "Teen (Weight)",
-      category: "Groundnut Oil",
-      size: "15 Kg",
-      price: 3000,
-      image: teenImage,
-      description: "Premium quality by weight",
-    },
-    {
-      id: 5,
-      name: "G20 Seeds",
-      category: "Groundnut Seeds",
-      size: "Per 20 Kg",
-      price: 1950,
-      image: seedsImage,
-      description: "Premium quality groundnut seeds",
-    },
-    {
-      id: 6,
-      name: "G39 Seeds",
-      category: "Groundnut Seeds",
-      size: "Per 20 Kg",
-      price: 2250,
-      image: seedsImage,
-      description: "Select quality groundnut seeds",
-    },
-    {
-      id: 7,
-      name: "BT-32 Seeds",
-      category: "Groundnut Seeds",
-      size: "Per 20 Kg",
-      price: 2350,
-      image: seedsImage,
-      description: "Superior quality groundnut seeds",
-    },
-    {
-      id: 8,
-      name: "G35 Seeds",
-      category: "Groundnut Seeds",
-      size: "Per 20 Kg",
-      price: 2550,
-      image: seedsImage,
-      description: "Premium select groundnut seeds",
-    },
-  ];
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Get user data from the real context
+  const { user } = useAuth(); // We only need the user object here
+  
+  // Determine if the user is an admin
+  const isAdmin = user && user.role === 'admin';
+  
+  // State to control the modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [productToEdit, setProductToEdit] = useState(null);
 
-  const handleWhatsAppOrder = (productName: string, price: number) => {
+  // Fetch products from API on page load
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("/api/products"); 
+        if (!response.ok) throw new Error("Network response was not ok");
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []); // Empty array ensures this runs only once
+
+  // WhatsApp handler
+  const handleWhatsAppOrder = (productName, price) => {
     const message = encodeURIComponent(
       `Hello! I'm interested in ordering ${productName} (₹${price}). Please provide more details.`
     );
     window.open(`https://wa.me/918780621820?text=${message}`, "_blank");
   };
+
+  // --- ADMIN FUNCTION: Handle Delete ---
+  const handleDeleteProduct = async (productId) => {
+    if (!window.confirm("Are you sure you want to delete this product?")) {
+      return;
+    }
+    try {
+      const response = await fetch(`/api/products/${productId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to delete product");
+      }
+      // Remove product from state to update UI instantly
+      setProducts(products.filter((p) => p._id !== productId));
+      alert("Product deleted successfully");
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert("Failed to delete product");
+    }
+  };
+
+  // --- ADMIN FUNCTION: Handle Add (Opens Modal) ---
+  const handleAddProduct = () => {
+    setProductToEdit(null); // Set to null for "Add" mode
+    setIsModalOpen(true);
+  };
+
+  // --- ADMIN FUNCTION: Handle Edit (Opens Modal) ---
+  const handleEditProduct = (product) => {
+    setProductToEdit(product); // Pass the product to pre-fill the form
+    setIsModalOpen(true);
+  };
+
+  // --- ADMIN FUNCTION: Handle Save (From Modal) ---
+  const handleSaveProduct = async (formData) => {
+    const isEditMode = Boolean(productToEdit); // Check if we are editing
+    const url = isEditMode
+      ? `/api/products/${productToEdit._id}` // PUT URL for editing
+      : "/api/products";                   // POST URL for adding
+    const method = isEditMode ? "PUT" : "POST";
+
+    try {
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save product");
+      }
+
+      const savedProduct = await response.json();
+
+      if (isEditMode) {
+        // Find and replace the product in the state
+        setProducts(
+          products.map((p) => (p._id === savedProduct._id ? savedProduct : p))
+        );
+        alert("Product updated!");
+      } else {
+        // Add the new product to the top of the list
+        setProducts([savedProduct, ...products]);
+        alert("Product added!");
+      }
+    } catch (error) {
+      console.error("Save error:", error);
+      alert("Failed to save product. Check console for details.");
+    } finally {
+      setIsModalOpen(false); // Close the modal
+    }
+  };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-xl">Loading products...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pt-1">
@@ -105,17 +144,42 @@ const Products = () => {
       {/* Products Grid */}
       <section className="py-20 px-4">
         <div className="container mx-auto">
+          
+          {/* ADMIN BUTTON: Add New Product */}
+          {/* This will only show if 'isAdmin' is true */}
+          {isAdmin && (
+            <div className="mb-8 text-right">
+              <Button size="lg" onClick={handleAddProduct}>
+                <PlusCircle className="mr-2" size={20} />
+                Add New Product
+              </Button>
+            </div>
+          )}
+
+          {/* Show message if no products exist */}
+          {!loading && products.length === 0 && (
+            <div className="text-center py-20">
+              <h2 className="text-2xl font-semibold mb-4">No Products Found</h2>
+              {isAdmin ? (
+                <p className="text-muted-foreground">Click "Add New Product" to get started.</p>
+              ) : (
+                <p className="text-muted-foreground">Please check back later.</p>
+              )}
+            </div>
+          )}
+
+          {/* The Product Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {products.map((product, index) => (
               <div
-                key={product.id}
+                key={product._id} // Use _id from MongoDB
                 className="bg-card rounded-2xl overflow-hidden shadow-soft hover:shadow-elegant transition-all duration-300 hover-lift animate-fade-in"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 {/* Product Image */}
                 <div className="relative h-64 overflow-hidden bg-muted">
                   <img
-                    src={product.image}
+                    src={product.image} // This is the URL from your database
                     alt={product.name}
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                   />
@@ -148,6 +212,29 @@ const Products = () => {
                     <MessageCircle className="mr-2" size={18} />
                     Order on WhatsApp
                   </Button>
+
+                  {/* ADMIN BUTTONS: Edit & Delete */}
+                  {/* This will only show if 'isAdmin' is true */}
+                  {isAdmin && (
+                    <div className="flex gap-2 mt-3">
+                      <Button
+                        variant="outline"
+                        className="w-1/2"
+                        onClick={() => handleEditProduct(product)}
+                      >
+                        <Edit className="mr-2" size={16} />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        className="w-1/2"
+                        onClick={() => handleDeleteProduct(product._id)}
+                      >
+                        <Trash2 className="mr-2" size={16} />
+                        Delete
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -179,6 +266,14 @@ const Products = () => {
           </Button>
         </div>
       </section>
+
+      {/* RENDER THE MODAL */}
+      <ProductFormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        productToEdit={productToEdit}
+        onSave={handleSaveProduct}
+      />
     </div>
   );
 };

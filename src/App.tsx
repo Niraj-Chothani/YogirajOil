@@ -9,6 +9,7 @@ import Contact from "@/pages/Contact";
 import Login from "@/pages/login";
 import Signup from "@/pages/signup";
 
+
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
