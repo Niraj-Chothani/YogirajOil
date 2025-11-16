@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext"; // Import the custom hook
 import axios from "axios";
 
 // Use the API URL from your environment variables
-const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081/api";
+const API_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 const Login = () => {
   const [email, setEmail] = useState("");
