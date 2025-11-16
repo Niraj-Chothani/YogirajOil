@@ -4,7 +4,7 @@ import { useAuth } from "@/context/AuthContext"; // Import useAuth
 import axios from "axios";
 
 // Use the same API URL logic as your Login page
-const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081/api";
+const API_URL = import.meta.env.VITE_API_BASE_URL || "https://yogiraj-2kfcg05pf-niraj-chothanis-projects.vercel.app/api";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
