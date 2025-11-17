@@ -10,6 +10,8 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
+
+    
   }
 
   // Only allow POST requests
