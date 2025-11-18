@@ -1,5 +1,5 @@
 // This file is at 'api/index.js'
-import app from './app.js';
+import app from '../backend/app.js';
 
 // --- THIS BLOCK IS FOR 'npm run dev' (local) ---
 // Vercel will ignore this block in production
