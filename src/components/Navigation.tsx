@@ -3,34 +3,26 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "@/context/AuthContext"; // 1. IMPORT useAuth
+import { useAuth } from "@/context/AuthContext"; 
 
-// 2. REMOVE PROPS (we get auth state from the hook now)
-// type NavigationProps = {
-//   isAuthenticated: boolean;
-//   setIsAuthenticated: (auth: boolean) => void;
-// };
-// const Navigation = ({ isAuthenticated, setIsAuthenticated }: NavigationProps) => {
 const Navigation = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // 3. GET AUTH STATE FROM THE HOOK
   const { user, logout } = useAuth();
-  const isAuthenticated = !!user; // Convert 'user' object to a true/false boolean
+  const isAuthenticated = !!user;
 
   const menuLinks = [
     { name: "Home", path: "/" },
     { name: "About", path: "/about" },
     { name: "Products", path: "/products" },
     { name: "Gallery", path: "/gallery" },
-    // { name: "Contact", path: "/contact" }, // You don't have this page yet
+    { name: "Contact", path: "/contact" }, // <-- 1. THIS LINK IS NOW UNCOMMENTED
   ];
 
-  // 4. UPDATE handleAuth TO USE THE 'logout' FUNCTION
   const handleAuth = () => {
     if (isAuthenticated) {
-      logout(); // Use the logout function from context
+      logout();
       alert("You’ve signed out successfully.");
       navigate("/login");
     } else {
@@ -47,7 +39,7 @@ const Navigation = () => {
         transition={{ duration: 0.5, ease: "easeInOut" }}
         className="fixed top-0 left-0 w-full z-50 bg-white/95 backdrop-blur-xl shadow-lg border-b border-gold/30"
       >
-        <div className="max-w-7xl mx-auto flex justify-between items-center h-20 px-4 lg:px-6"> {/* Added some padding */}
+        <div className="max-w-7xl mx-auto flex justify-between items-center h-20 px-4 lg:px-6">
           {/* Left: Logo */}
           <Link
             to="/"
