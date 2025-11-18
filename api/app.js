@@ -1,32 +1,29 @@
-// This file is at /api/app.js
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import apiRouter from "./routes/index.js";
-
-// Load env variables to get FRONTEND_URL
-dotenv.config({ path: new URL('../.env', import.meta.url).pathname });
+// This file is at 'api/app.js'
+import express from 'express';
+import cors from 'cors';
+import mongoose from 'mongoose';
+import allApiRoutes from './routes/index.js'; // This path is correct
 
 const app = express();
 
-// Middlewares
+// --- Middleware ---
 app.use(cors({
   origin: [
     'http://localhost:5173', // For local development
-    process.env.FRONTEND_URL // Your live Vercel URL
+    'https://yogiraj-oil-git-main-niraj-chothanis-projects.vercel.app' // Your live site
   ],
   credentials: true
 }));
-
 app.use(express.json());
 
-// Main API Router - All API routes will be prefixed with /api
-// This is correct. It strips /api and sends the rest to the router.
-app.use("/api", apiRouter);
+// --- Database Connection ---
+// (Your mongoose.connect(...) logic goes here)
+// Make sure MongoDB Atlas IP Whitelist is 0.0.0.0/0
 
-// Health check endpoint
-app.get("/api/health", (req, res) => {
-  res.json({ status: "Server is running!", timestamp: new Date().toISOString() });
-});
+// --- API Routes ---
+// ⚠️ FIX: This must be '/'
+// This passes the full path (e.g., /api/auth/login) to your router.
+app.use('/', allApiRoutes); 
 
-export { app }; // Export the app for index.js to use
+// This file exports the app for index.js to use
+export default app;
