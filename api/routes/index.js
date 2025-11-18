@@ -1,3 +1,4 @@
+// This file is at /api/routes/index.js
 import express from "express";
 import contactRouter from "./contact.routes.js";
 import authRoutes from "./auth.js";
@@ -6,11 +7,10 @@ import galleryRoutes from "./galleryRoutes.js";
 
 const router = express.Router();
 
-// --- THIS IS THE FIX ---
-// Add '/api' to the beginning of all your routes
-router.use("/api/contact", contactRouter);
-router.use("/api/auth", authRoutes);
-router.use("/api/products", productRoutes);
-router.use("/api/gallery", galleryRoutes);
+// ⚠️ CORRECT: NO /api prefix here.
+router.use("/contact", contactRouter);
+router.use("/auth", authRoutes);
+router.use("/products", productRoutes);
+router.use("/gallery", galleryRoutes);
 
 export default router;

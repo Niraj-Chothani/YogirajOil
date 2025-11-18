@@ -1,24 +1,27 @@
-// server/app.js
+// This file is at /api/app.js
 import express from "express";
 import cors from "cors";
-
-// Import ONLY the main router
+import dotenv from "dotenv";
 import apiRouter from "./routes/index.js";
+
+// Load env variables to get FRONTEND_URL
+dotenv.config({ path: new URL('../.env', import.meta.url).pathname });
 
 const app = express();
 
 // Middlewares
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  origin: [
+    'http://localhost:5173', // For local development
+    process.env.FRONTEND_URL // Your live Vercel URL
+  ],
   credentials: true
 }));
 
-// Use express.json() for new Express versions (replaces bodyParser)
 app.use(express.json());
 
-
 // Main API Router - All API routes will be prefixed with /api
-// This is the ONLY router you need.
+// This is correct. It strips /api and sends the rest to the router.
 app.use("/api", apiRouter);
 
 // Health check endpoint
