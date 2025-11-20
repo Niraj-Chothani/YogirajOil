@@ -1,4 +1,3 @@
-// api/app.js
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
@@ -48,10 +47,14 @@ const connectDB = async () => {
 };
 
 // --- Middleware ---
+
+// *** FIX: Updated CORS Origins ***
 app.use(cors({
   origin: [
     'http://localhost:5173', 
-    'https://yogiraj-oil-git-main-niraj-chothanis-projects.vercel.app' 
+    'https://yogiraj-oil.vercel.app', // The main production domain (API target)
+    'https://yogiraj-oil-git-main-niraj-chothanis-projects.vercel.app', // Existing preview domain
+    'https://yogiraj-oil-nmly.vercel.app' // The specific preview domain currently failing (Client origin)
   ],
   credentials: true
 }));
@@ -74,6 +77,7 @@ app.use(async (req, res, next) => {
 
 
 // --- API Routes ---
+// This is correct for Vercel deployment: all routes map under the root of the app.
 app.use('/', allApiRoutes); 
 
 // This file exports the app for index.js to use
